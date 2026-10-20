@@ -144,6 +144,7 @@ class DashboardController extends Controller
             ->get();
         $recentCount = $recentTransactions->count();
 
+        $products = Product::all();
         return view('dashboard', compact(
             'monthLabels',
             'monthSales',
@@ -154,7 +155,8 @@ class DashboardController extends Controller
             'itemsSold',
             'netProfit',
             'recentCount',
-            'recentTransactions'
+            'recentTransactions',
+            'products'
         ));
     }
         $filter = $request->get('filter', 'monthly'); // default monthly

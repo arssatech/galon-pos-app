@@ -1,14 +1,14 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="bg-slate-50 min-h-screen p-6 text-slate-800">
+<div class="bg-gray-100 min-h-screen p-6 text-gray-800">
     <!-- Top KPI Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
-        <div class="bg-white shadow-sm border border-slate-200 rounded-lg p-6">
+        <div class="bg-gray-200 shadow-sm border border-gray-300 rounded-lg p-6">
             <h3 class="text-sm text-slate-500">Total Penjualan</h3>
             <p class="text-2xl font-semibold">Rp {{ number_format($totalSales, 0, ',', '.') }}</p>
         </div>
-        <div class="bg-white shadow-sm border border-slate-200 rounded-lg p-6">
+        <div class="bg-gray-100 shadow-sm border border-gray-300 rounded-lg p-6">
             <h3 class="text-sm text-slate-500">Produk Terjual</h3>
             <p class="text-2xl font-semibold">{{ number_format($itemsSold) }}</p>
         </div>

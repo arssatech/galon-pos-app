@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" class="{{ auth()->user()?->theme === 'dark' ? 'dark' : '' }}">
+
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>@yield('title', 'POS Galon')</title>
@@ -16,21 +17,9 @@
     {{-- Vite Assets (Tailwind + Custom CSS) --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    {{-- Inline Critical CSS untuk Dark Mode --}}
-    <style>
-        .bg-light { background-color: #ffffff; }
-        .bg-dark { background-color: #111827; }
-        .text-dark { color: #111827; }
-        .text-light { color: #ffffff; }
-        
-        .dark .bg-light { background-color: #111827 !important; }
-        .dark .text-dark { color: #ffffff !important; }
-        .dark .navbar-light { background-color: #1f2937 !important; }
-        .dark .navbar-light .navbar-brand,
-        .dark .navbar-light .nav-link { color: #ffffff !important; }
-    </style>
+
 </head>
-<body class="bg-light text-dark min-h-screen">
+<body class="bg-gray-100 text-gray-800 min-h-screen">
 
     @include('layouts.nav')
     

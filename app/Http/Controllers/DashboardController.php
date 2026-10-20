@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Sale;
 use App\Models\Product;
 use App\Models\Customer;
-use App\Models\Vehicle;
+use App\Models\Product;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -79,6 +79,84 @@ class DashboardController extends Controller
 
     public function index(Request $request)
     {
+        // Filter for chart (keep existing logic)
+        $filter = $request->get('filter', 'monthly'); // default monthly
+        $monthLabels = [];
+        $monthSales = [];
+        $monthCost = [];
+        $monthProfit = [];
+
+        if ($filter === 'daily') {
+            for ($i = 6; $i >= 0; $i--) {
+                $day = Carbon::now()->subDays($i);
+                $sales = Sale::with(['vehicle', 'product'])
+                    ->whereDate('created_at', $day->toDateString())
+                    ->get();
+
+                $monthLabels[] = $day->format('d M');
+                $salesTotal = $sales->sum('total_price');
+                $costTotal = $sales->sum(fn($s) => $this->calculateSaleCost($s));
+                $monthSales[] = $salesTotal;
+                $monthCost[] = $costTotal;
+                $monthProfit[] = $salesTotal - $costTotal;
+            }
+        } elseif ($filter === 'weekly') {
+            for ($i = 6; $i >= 0; $i--) {
+                $startOfWeek = Carbon::now()->subWeeks($i)->startOfWeek();
+                $endOfWeek = Carbon::now()->subWeeks($i)->endOfWeek();
+                $sales = Sale::with(['vehicle', 'product'])
+                    ->whereBetween('created_at', [$startOfWeek, $endOfWeek])
+                    ->get();
+
+                $monthLabels[] = 'Minggu ' . $startOfWeek->format('d M');
+                $salesTotal = $sales->sum('total_price');
+                $costTotal = $sales->sum(fn($s) => $this->calculateSaleCost($s));
+                $monthSales[] = $salesTotal;
+                $monthCost[] = $costTotal;
+                $monthProfit[] = $salesTotal - $costTotal;
+            }
+        } else { // monthly
+            for ($i = 5; $i >= 0; $i--) {
+                $month = Carbon::now()->subMonths($i);
+                $sales = Sale::with(['vehicle', 'product'])
+                    ->whereMonth('created_at', $month->month)
+                    ->whereYear('created_at', $month->year)
+                    ->get();
+
+                $monthLabels[] = $month->format('M Y');
+                $salesTotal = $sales->sum('total_price');
+                $costTotal = $sales->sum(fn($s) => $this->calculateSaleCost($s));
+                $monthSales[] = $salesTotal;
+                $monthCost[] = $costTotal;
+                $monthProfit[] = $salesTotal - $costTotal;
+            }
+        }
+
+        // KPI calculations
+        $totalSales = Sale::sum('total_price');
+        $itemsSold = Sale::sum('quantity');
+        $totalCost = Sale::all()->sum(fn($sale) => $this->calculateSaleCost($sale));
+        $netProfit = $totalSales - $totalCost;
+
+        $recentTransactions = Sale::with('product')
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+        $recentCount = $recentTransactions->count();
+
+        return view('dashboard', compact(
+            'monthLabels',
+            'monthSales',
+            'monthCost',
+            'monthProfit',
+            'filter',
+            'totalSales',
+            'itemsSold',
+            'netProfit',
+            'recentCount',
+            'recentTransactions'
+        ));
+    }
         $filter = $request->get('filter', 'monthly'); // default monthly
 
         $monthLabels = [];
